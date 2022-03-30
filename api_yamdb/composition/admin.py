@@ -5,9 +5,9 @@ from .models import Author, Genres, Titles, Categories
 
 
 class TitlesAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'title','author', 'release', 'title_urls')
+    list_display = ('pk', 'title','author', 'release', 'title_urls', 'categories', 'genre')
     search_fields = ('title', 'author')
-    list_filter = ('release',)
+    list_filter = ('release', 'categories', 'genre',)
     empty_value_display = '-пусто-'
 
 
