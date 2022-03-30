@@ -12,5 +12,6 @@ class TitlesAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Titles, TitlesAdmin)
+admin.site.register(Author)
 admin.site.register(Genres)
 admin.site.register(Categories)

@@ -11,7 +11,8 @@ class Author(models.Model):
     )
 
     def __str__(self) -> str:
-        return self.slug
+        self.name = self.first_name + ' ' + self.last_name
+        return self.name
 
 
 class Genres(models.Model):
