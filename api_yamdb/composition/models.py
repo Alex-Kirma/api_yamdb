@@ -3,9 +3,12 @@ from django.db import models
 
 class Author(models.Model):
     """Модель Автор для будущих расширений"""
-    first_name = models.TextField
-    last_name = models.TextField
-    slug = models.SlugField
+    first_name = models.TextField()
+    last_name = models.TextField()
+    slug = models.SlugField(
+        max_length=80,
+        unique=True
+    )
 
     def __str__(self) -> str:
         return self.slug
@@ -33,7 +36,10 @@ class Categories(models.Model):
 
 class Titles(models.Model):
     """Модель Произведение, базовая модель"""
-    title = models.TextField
+    title = models.TextField(
+        'Название произведения',
+        help_text='Введите название произведения'
+    )
     title_urls = models.URLField(
         unique=True,
         blank=True,
@@ -42,25 +48,34 @@ class Titles(models.Model):
     author = models.ForeignKey(
         Author,
         on_delete=models.CASCADE,
-        related_name='title',
+        verbose_name='Автор',
+        related_name='titles',
         blank=True,
         null=True
     )
-    relese = models.DateField('Дата публикации')
+    release = models.DateField(
+        'Дата публикации',
+        help_text='Введите дату публикации')
     genre = models.ForeignKey(
         Genres,
-        on_delete=models.CASCADE,
-        null=False,
-        blank=False,
-        related_name='title'
+        on_delete=models.SET_NULL,
+        verbose_name='Жанр',
+        help_text='Введите жанры произведения',
+        null=True,
+        blank=True,
+        related_name='titles'
     )
     categories = models.ForeignKey(
         Categories,
         on_delete=models.CASCADE,
+        verbose_name='Категория',
+        help_text='Введите категорию произведения',
         null=False,
         blank=False,
-        related_name='title'
+        related_name='titles'
     )
     
     class Meta:
-        ordering = -['release']
+        ordering = ['-release']
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
