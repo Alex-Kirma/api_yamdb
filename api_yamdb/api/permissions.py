@@ -9,3 +9,4 @@ class CustomIsAdmin(permissions.BasePermission):
                 or request.user.role == 'admin'
                 or request.user.is_staff
             )
+

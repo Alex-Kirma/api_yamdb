@@ -11,5 +11,6 @@ urlpatterns = [
     path('v1/auth/token/', TokenAPI.as_view()),
     path('v1/users/me/', MeAPI.as_view()),
     path('v1/auth/signup/', SignUpAPI.as_view()),
+
     path('v1/', include(router.urls)),
 ]
