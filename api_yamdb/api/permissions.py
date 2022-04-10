@@ -96,3 +96,4 @@ class AuthorAndStaffOrReadOnly(BasePermission):
             if request.user.role in MODERATOR:
                 return True
         return obj.author == request.user
+
