@@ -1,25 +1,27 @@
 import uuid
 
-from api.permissions import CustomIsAdmin, AuthorAndStaffOrReadOnly, IsAdminOrReadOnly, OwnerOrAdmins
-from api.serializers import (MeSerializer, SignUpSerializer, TokenSerializer,
-                             UsersSerializer, AuthorSerializer, CategoriesSerializer,
-                          CommentsSerializer, GenresSerializer, 
-                          ReviewsSerializer, 
-                          TitlesSerializer, TitlesViewSerializer,)
-
-
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, status, viewsets, mixins
-from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework import filters, mixins, status, viewsets
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
+
 from reviews.models import Author, Categories, Genres, Review, Title, User
 from users.models import User
-from .paginator import CommentPagination
+from api.paginator import CommentPagination
+from api.filters import TitleFilter
+from api.permissions import (AuthorAndStaffOrReadOnly,
+                             IsAdminOrReadOnly, OwnerOrAdmins)
+from api.serializers import (AuthorSerializer, CategoriesSerializer,
+                             CommentsSerializer, GenresSerializer,
+                             MeSerializer, ReviewsSerializer, SignUpSerializer,
+                             TitlesSerializer, TitlesViewSerializer,
+                             TokenSerializer, UsersSerializer)
 
 
 class SignUpAPI(APIView):
@@ -66,9 +68,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     pagination_class = PageNumberPagination
-    #permission_classes = (CustomIsAdmin, )
     permission_classes = (OwnerOrAdmins, )
-    
     filter_backends = (filters.SearchFilter, )
     filterset_fields = ('username')
     search_fields = ('username', )
@@ -92,14 +92,14 @@ class MeAPI(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitlesSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = PageNumberPagination
+    filterset_class = TitleFilter
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('name', 'year', 'genre', 'category', 'author')
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
@@ -183,7 +183,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [AuthorAndStaffOrReadOnly]
 
     def get_queryset(self):
-        # Получаем id title из эндпоинта
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         queryset = review.comments.all()
         return queryset
