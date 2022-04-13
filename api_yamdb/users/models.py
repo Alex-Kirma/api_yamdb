@@ -9,21 +9,23 @@ ADMIN = 'admin'
 class User(AbstractUser):
 
     roles = (
-        (USER, 'user'),
-        (MODERATOR, 'moderator'),
-        (ADMIN, 'admin'),
+        (USER, USER),
+        (MODERATOR, MODERATOR),
+        (ADMIN, ADMIN),
     )
 
     username = models.CharField(
         'Имя пользователя',
         max_length=150,
-        unique=True
+        unique=True,
     )
-    email = models.EmailField('Email', unique=True)
+    first_name = models.CharField(max_length=150, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
+    email = models.EmailField('Email', max_length=254, unique=True)
     role = models.CharField(
         'Роль пользователя',
         choices=roles,
-        max_length=9, default='user'
+        max_length=len(MODERATOR), default=USER
     )
     bio = models.TextField('Биография', blank=True)
     confirmation_code = models.CharField(
@@ -31,9 +33,6 @@ class User(AbstractUser):
         max_length=100,
         null=True
     )
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
 
     REQUIRED_FIELDS = ["email"]
     USERNAME_FIELDS = "email"
