@@ -4,12 +4,14 @@ from rest_framework.permissions import SAFE_METHODS, BasePermission
 from users.models import MODERATOR, ADMIN
 
 
-
 class OwnerOrAdmins(permissions.BasePermission):
+
     def has_permission(self, request, view):
-        if request.user.is_anonymous or not (
-            request.user.role in ADMIN or request.user.is_superuser
-        ):
+        if (
+            request.user.is_anonymous
+            or not (
+                request.user.role == 'admin'
+                or request.user.is_superuser)):
             return False
         else:
             return True
@@ -17,9 +19,8 @@ class OwnerOrAdmins(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return (
             obj.username == request.user
-            or request.user.role in ADMIN
-            or request.user.is_superuser
-        )
+            or request.user.role == 'admin'
+            or request.user.is_superuser)
 
 
 class ReadOnlyOrAdmins(permissions.BasePermission):

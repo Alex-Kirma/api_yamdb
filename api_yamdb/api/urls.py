@@ -12,13 +12,13 @@ from api.views import (
     token_post,
 )
 
-app_name = "api"
+app_name = 'api'
 
 router = DefaultRouter()
-router.register("users", UserViewSet)
-router.register("titles", TitlesViewSet)
-router.register("genres", GenresViewSet, basename="genres")
-router.register("categories", CategoriesViewSet, basename="categories")
+router.register('users', UserViewSet)
+router.register('titles', TitlesViewSet)
+router.register('genres', GenresViewSet, basename='genres')
+router.register('categories', CategoriesViewSet, basename='categories')
 router.register(
     r'titles/(?P<title_id>[\d]+)/reviews',
     ReviewViewSet,
@@ -31,7 +31,7 @@ router.register(
     basename='comments',
 )
 urlpatterns = [
-    path("v1/auth/token/", token_post),
-    path("v1/auth/signup/", signup_post),
-    path("v1/", include(router.urls)),
+    path('v1/auth/token/', token_post),
+    path('v1/auth/signup/', signup_post),
+    path('v1/', include(router.urls)),
 ]

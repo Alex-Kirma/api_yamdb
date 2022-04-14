@@ -3,6 +3,7 @@ import uuid
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
+from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.pagination import PageNumberPagination
@@ -29,8 +30,7 @@ from api.serializers import (CategoriesSerializer,
 def signup_post(request):
     serializer = SignUpSerializer(data=request.data)
     confirmation_code = str(uuid.uuid4())
-    serializer.is_valid(raise_exception=False)
-    print(serializer)
+    serializer.is_valid(raise_exception=True)
     email = serializer.validated_data['email']
     username = serializer.validated_data['username']
     try:
@@ -38,9 +38,9 @@ def signup_post(request):
             username=username,
             email=email
         )
-    except UserWarning:
-        UserWarning(message='Такой email уже существует')
-    user = get_object_or_404(User, username=username)
+    except IntegrityError:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    user = get_object_or_404(User, email=email)
     user.confirmation_code = confirmation_code
     user.save()
     send_mail(
@@ -106,11 +106,8 @@ class TitlesViewSet(viewsets.ModelViewSet):
         return TitlesSerializer
 
 
-class CatalogModelMixin(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet):
+class CatalogModelMixin(mixins.CreateModelMixin, mixins.ListModelMixin,
+                        mixins.DestroyModelMixin, viewsets.GenericViewSet):
     permission_classes = [
         IsAuthenticatedOrReadOnly,
         IsAdminOrReadOnly

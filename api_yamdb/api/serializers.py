@@ -1,18 +1,10 @@
 import datetime as dt
-from enum import unique
-from tkinter import CURRENT
-from turtle import title
-
-from django.db.models import Avg
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueValidator
 from reviews.models import (
     Categories,
     Comment,
     Genres,
-    GenreTitle,
     Review,
     Title,
 )
@@ -145,7 +137,7 @@ class ReviewsSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault(),
         read_only=True
     )
-    
+
     class Meta:
         fields = '__all__'
         model = Review
