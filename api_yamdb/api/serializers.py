@@ -1,6 +1,8 @@
 import datetime as dt
+from tkinter import CURRENT
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
+from rest_framework.validators import UniqueTogetherValidator
 from reviews.models import (
     Categories,
     Comment,
@@ -131,16 +133,34 @@ class TitlesViewSerializer(serializers.ModelSerializer):
 
 class ReviewsSerializer(serializers.ModelSerializer):
     """Ревью для произведений"""
-
     author = serializers.SlugRelatedField(
         slug_field='username',
         default=serializers.CurrentUserDefault(),
         read_only=True
     )
+    title = serializers.PrimaryKeyRelatedField(
+        many=False,
+        default=CURRENT,
+        queryset=Title.objects.all()
+    )
 
     class Meta:
         fields = '__all__'
         model = Review
+        lookup_field = 'slug'
+        read_only_fields = ['title']
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=('title', 'author'),
+                message='Нельзя оставить отзыв на одно произведение дважды'
+            )
+        ]
+
+    def validate_score(self, value):
+        if 0 >= value >= 10:
+            raise serializers.ValidationError('Проверьте оценку')
+        return value
 
 
 class CommentsSerializer(serializers.ModelSerializer):

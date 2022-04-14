@@ -134,8 +134,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        queryset = title.reviews.all()
-        return queryset
+        new_queryset = title.reviews.all()
+        return new_queryset
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        if not title.reviews.filter(author=self.request.user).exists():
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -153,7 +162,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         if review in title.reviews.all():
             queryset = review.comments.all()
         else:
-            None
+            raise KeyError('No Review to Comment')
         return queryset
 
     def perform_create(self, serializer):
