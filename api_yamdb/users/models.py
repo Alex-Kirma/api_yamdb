@@ -19,7 +19,8 @@ class User(AbstractUser):
     username = models.CharField(
         'Имя пользователя',
         max_length=150,
-        unique=True
+        unique=True,
+        validators=[username_validator],
     )
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
@@ -27,7 +28,7 @@ class User(AbstractUser):
     role = models.CharField(
         'Роль пользователя',
         choices=roles,
-        max_length=len(MODERATOR), default=USER
+        max_length=max(len(role[1]) for role in roles), default=USER
     )
     bio = models.TextField('Биография', blank=True)
     confirmation_code = models.CharField(
@@ -36,8 +37,8 @@ class User(AbstractUser):
         null=True
     )
 
-    REQUIRED_FIELDS = ["email"]
-    USERNAME_FIELDS = "email"
+    REQUIRED_FIELDS = ['email']
+    USERNAME_FIELDS = 'email'
 
     def __str__(self):
         return str(self.username)

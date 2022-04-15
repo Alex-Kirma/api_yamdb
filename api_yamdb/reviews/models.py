@@ -5,7 +5,7 @@ from users.models import User
 from .validators import validate_year
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     """Модель жанры, многое к многому"""
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
@@ -14,7 +14,7 @@ class Genres(models.Model):
         return self.slug
 
 
-class Categories(models.Model):
+class Category(models.Model):
     """Модель категории одно к многим """
     name = models.CharField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
@@ -32,9 +32,9 @@ class Title(models.Model):
         validators=[validate_year],
         help_text='Введите год релиза'
     )
-    genre = models.ManyToManyField(Genres, through='GenreTitle')
+    genre = models.ManyToManyField(Genre, through='GenreTitle')
     category = models.ForeignKey(
-        Categories,
+        Category,
         on_delete=models.SET_NULL,
         verbose_name='Категория',
         help_text='Введите категорию произведения',
@@ -56,7 +56,7 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
-    genre = models.ForeignKey(Genres, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
@@ -91,6 +91,10 @@ class Review(models.Model):
 
     class Meta:
         ordering = ['-pub_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'], name="unique_review")
+        ]
 
 
 class Comment(models.Model):

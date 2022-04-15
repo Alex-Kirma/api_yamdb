@@ -10,7 +10,7 @@ class OwnerOrAdmins(permissions.BasePermission):
         if (
             request.user.is_anonymous
             or not (
-                request.user.role == 'admin'
+                request.user.role in ADMIN
                 or request.user.is_superuser)):
             return False
         else:
@@ -19,7 +19,7 @@ class OwnerOrAdmins(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return (
             obj.username == request.user
-            or request.user.role == 'admin'
+            or request.user.role in ADMIN
             or request.user.is_superuser)
 
 
@@ -27,12 +27,12 @@ class ReadOnlyOrAdmins(permissions.BasePermission):
     def has_permission(self, request, view):
         if (
             request.user.is_anonymous
-            and request.method not in permissions.SAFE_METHODS
+            and request.method not in SAFE_METHODS
         ):
             return False
         else:
             return (
-                request.method in permissions.SAFE_METHODS
+                request.method in SAFE_METHODS
                 or request.user.is_superuser
                 or request.user.role in ADMIN
             )

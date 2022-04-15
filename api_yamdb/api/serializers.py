@@ -1,12 +1,11 @@
 import datetime as dt
-from tkinter import CURRENT
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueTogetherValidator
+
 from reviews.models import (
-    Categories,
+    Category,
     Comment,
-    Genres,
+    Genre,
     Review,
     Title,
 )
@@ -66,7 +65,7 @@ class GenresSerializer(serializers.ModelSerializer):
     """Жанры, описание."""
 
     class Meta:
-        model = Genres
+        model = Genre
         fields = ('name', 'slug')
 
 
@@ -74,7 +73,7 @@ class CategoriesSerializer(serializers.ModelSerializer):
     """Категории, описание."""
 
     class Meta:
-        model = Categories
+        model = Category
         fields = ('name', 'slug')
 
 
@@ -82,13 +81,13 @@ class TitlesSerializer(serializers.ModelSerializer):
     """Основной метод записи информации."""
 
     category = serializers.SlugRelatedField(
-        slug_field='slug', many=False, queryset=Categories.objects.all()
+        slug_field='slug', many=False, queryset=Category.objects.all()
     )
     genre = serializers.SlugRelatedField(
         slug_field='slug',
         many=True,
         required=False,
-        queryset=Genres.objects.all()
+        queryset=Genre.objects.all()
     )
 
     class Meta:
@@ -138,24 +137,21 @@ class ReviewsSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault(),
         read_only=True
     )
-    title = serializers.PrimaryKeyRelatedField(
-        many=False,
-        default=CURRENT,
-        queryset=Title.objects.all()
-    )
 
     class Meta:
         fields = '__all__'
         model = Review
-        lookup_field = 'slug'
         read_only_fields = ['title']
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('title', 'author'),
-                message='Нельзя оставить отзыв на одно произведение дважды'
-            )
-        ]
+
+    def validate(self, data):
+        title_id = self.context['request'].parser_context['kwargs']['title_id']
+        user = self.context['request'].user
+        if self.context['request'].method == 'POST':
+            if user.reviews.filter(title_id=title_id).exists():
+                raise serializers.ValidationError(
+                    'Нельзя оставить отзыв на одно произведение дважды'
+                )
+        return data
 
     def validate_score(self, value):
         if 0 >= value >= 10:
