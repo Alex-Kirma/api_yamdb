@@ -72,7 +72,7 @@ from users.models import User
 
 Последовательно для каждой модели запустить цикл записи данных:
 
-на примере пользователей.
+на примере модели пользователей.
 
 with open('users.csv') as csvfile:
     reader = csv.DictReader(csvfile)
