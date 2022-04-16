@@ -39,7 +39,7 @@ def signup_post(request):
         )
     except IntegrityError:
         return Response(
-            'Такие данные уже существуют',
+            'Такой логин или email уже существуют',
             status=status.HTTP_400_BAD_REQUEST
         )
     user = get_object_or_404(User, email=email)
