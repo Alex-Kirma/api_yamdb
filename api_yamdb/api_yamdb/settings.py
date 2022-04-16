@@ -1,11 +1,9 @@
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
-from pathlib import Path
 
 load_dotenv()
-env_path = Path('.') / '.env'
-load_dotenv(dotenv_path=env_path)
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,6 +32,7 @@ INSTALLED_APPS = [
     'reviews.apps.ReviewsConfig',
     'users.apps.UsersConfig',
     'django_filters',
+    'dotenv',
 ]
 
 MIDDLEWARE = [
