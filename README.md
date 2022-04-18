@@ -65,8 +65,7 @@ inport csv
 
 path = "с:/../api_yamdb/static/data"
 
-Импортировать необходимые модели
-
+Сделать импорт модели:
 from reviews.models import Genre, Category, Title, Review, Comment, GenreTitle
 from users.models import User
 

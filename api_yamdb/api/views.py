@@ -33,7 +33,7 @@ def signup_post(request):
     email = serializer.validated_data['email']
     username = serializer.validated_data['username']
     try:
-        User.objects.get_or_create(
+        user, create = User.objects.get_or_create(
             username=username,
             email=email
         )
@@ -42,7 +42,6 @@ def signup_post(request):
             'Такой логин или email уже существуют',
             status=status.HTTP_400_BAD_REQUEST
         )
-    user = get_object_or_404(User, email=email)
     confirmation_code = str(uuid.uuid4())
     user.confirmation_code = confirmation_code
     user.save()
